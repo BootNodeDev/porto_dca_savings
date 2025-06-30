@@ -8,11 +8,15 @@ import type { FC, ReactNode } from 'react'
 import type { Address } from 'viem'
 import { normalize } from 'viem/ens'
 import { createConfig, useEnsAvatar, useEnsName } from 'wagmi'
+import { Porto } from 'porto'
 
 interface Props {
   address: Address
   size: number
 }
+
+// Inject into connect kit
+Porto.create()
 
 const UserAvatar: FC<Props> = ({ address, size }: Props) => {
   const { data: ensName } = useEnsName({ address })
