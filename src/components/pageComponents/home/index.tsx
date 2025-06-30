@@ -60,6 +60,7 @@ export const Home = () => (
             </a>
             !
           </List.Item>
+          <List.Item onClick={() => fetch('/api/hello')}>Test</List.Item>
         </List.Root>
       </Card.Body>
     </Card.Root>
