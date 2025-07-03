@@ -4,19 +4,16 @@ import { env } from '@/src/env'
 import { chains, transports } from '@/src/lib/networks.config'
 import type { ButtonProps } from '@chakra-ui/react'
 import { ConnectKitButton, ConnectKitProvider, type Types, getDefaultConfig } from 'connectkit'
+import { porto as portoConnector } from 'porto/wagmi'
 import type { FC, ReactNode } from 'react'
 import type { Address } from 'viem'
 import { normalize } from 'viem/ens'
 import { createConfig, useEnsAvatar, useEnsName } from 'wagmi'
-import { Porto } from 'porto'
 
 interface Props {
   address: Address
   size: number
 }
-
-// Inject into connect kit
-Porto.create()
 
 const UserAvatar: FC<Props> = ({ address, size }: Props) => {
   const { data: ensName } = useEnsName({ address })
@@ -86,6 +83,7 @@ export const ConnectWalletButton = ({
 const defaultConfig = {
   chains,
   transports,
+  connectors: [portoConnector()],
 
   // Required API Keys
   walletConnectProjectId: env.PUBLIC_WALLETCONNECT_PROJECT_ID,
@@ -99,6 +97,11 @@ const defaultConfig = {
   appIcon: env.PUBLIC_APP_LOGO,
 } as const
 
-const connectkitConfig = getDefaultConfig(defaultConfig)
+const connectkitConfig = getDefaultConfig({
+  ...defaultConfig,
+  enableFamily: false,
+  multiInjectedProviderDiscovery: false,
+})
 
 export const config = createConfig(connectkitConfig)
+export type WagmiPortoConfig = typeof config

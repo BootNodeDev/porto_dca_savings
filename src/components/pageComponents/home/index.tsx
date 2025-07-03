@@ -1,70 +1,37 @@
-import { Card, Code, Flex, Heading, List, Span } from '@chakra-ui/react'
+import type { WagmiPortoConfig } from '@/src/lib/wallets/connectkit.config'
+import { Card, Flex, Heading, Span } from '@chakra-ui/react'
+import { useConnect } from 'wagmi'
 
-export const Home = () => (
-  <Flex
-    alignItems="center"
-    flexGrow={1}
-    justifyContent="center"
-  >
-    <Card.Root
-      maxWidth={'100%'}
-      size={'lg'}
-      width={'600px'}
+export const Home = () => {
+  const { connect, connectors } = useConnect<WagmiPortoConfig>()
+  console.log({ connect, connectors })
+
+  return (
+    <Flex
+      alignItems="center"
+      flexGrow={1}
+      justifyContent="center"
     >
-      <Card.Header
-        display={'flex'}
-        justifyContent={'space-between'}
-        flexDirection={'row'}
+      <Card.Root
+        maxWidth={'100%'}
+        size={'lg'}
+        width={'600px'}
       >
-        <Heading>
-          Welcome to{' '}
-          <a
-            href="https://dappbooster.dev"
-            rel="noreferrer"
-            target="_blank"
-          >
-            dAppBooster
-          </a>
-          !
-        </Heading>
-        <Span marginLeft={'auto'}>👻</Span>
-      </Card.Header>
-      <Card.Body
-        gap={3}
-        minHeight={'300px'}
-      >
-        <List.Root paddingLeft={5}>
-          <List.Item>
-            You can modify this content by editing{' '}
-            <Code>src/components/pageComponents/home/index.tsx</Code>
-          </List.Item>
-          <List.Item>
-            Examples of usage of all the components can be found{' '}
-            <a
-              href={'https://bootnodedev.github.io/dAppBooster/'}
-              target={'_blank'}
-              rel="noreferrer"
-            >
-              here
-            </a>
-            .
-          </List.Item>
-          <List.Item>
-            Don't forget to check{' '}
-            <a
-              href={'https://docs.dappbooster.dev/'}
-              target={'_blank'}
-              rel="noreferrer"
-            >
-              the documentation
-            </a>
-            !
-          </List.Item>
-          <List.Item onClick={() => fetch('/api/hello')}>Test</List.Item>
-        </List.Root>
-      </Card.Body>
-    </Card.Root>
-  </Flex>
-)
+        <Card.Header
+          display={'flex'}
+          justifyContent={'space-between'}
+          flexDirection={'row'}
+        >
+          <Heading>Porto DCA Savings</Heading>
+          <Span marginLeft={'auto'}>👻</Span>
+        </Card.Header>
+        <Card.Body
+          gap={3}
+          minHeight={'300px'}
+        ></Card.Body>
+      </Card.Root>
+    </Flex>
+  )
+}
 
 export default Home
