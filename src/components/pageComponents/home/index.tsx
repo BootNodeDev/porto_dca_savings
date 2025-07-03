@@ -1,10 +1,12 @@
 import type { WagmiPortoConfig } from '@/src/lib/wallets/connectkit.config'
-import { Card, Flex, Heading, Span } from '@chakra-ui/react'
+import { Button, Card, Flex, Heading, Span } from '@chakra-ui/react'
 import { useConnect } from 'wagmi'
+import { useSetPermissions } from './useSetPermissions'
 
 export const Home = () => {
   const { connect, connectors } = useConnect<WagmiPortoConfig>()
   console.log({ connect, connectors })
+  const { grantPermissionToKey, keys, getNewKey } = useSetPermissions()
 
   return (
     <Flex
@@ -23,12 +25,26 @@ export const Home = () => {
           flexDirection={'row'}
         >
           <Heading>Porto DCA Savings</Heading>
-          <Span marginLeft={'auto'}>👻</Span>
         </Card.Header>
         <Card.Body
           gap={3}
           minHeight={'300px'}
-        ></Card.Body>
+        >
+          <Button
+            onClick={() => {
+              getNewKey()
+            }}
+          >
+            Get Key
+          </Button>
+          <Button
+            onClick={() => {
+              grantPermissionToKey(keys[0])
+            }}
+          >
+            Set permissions
+          </Button>
+        </Card.Body>
       </Card.Root>
     </Flex>
   )
