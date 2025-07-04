@@ -6,7 +6,7 @@ import { useSetPermissions } from './useSetPermissions'
 export const Home = () => {
   const { connect, connectors } = useConnect<WagmiPortoConfig>()
   console.log({ connect, connectors })
-  const { grantPermissionToKey, keys, getNewKey } = useSetPermissions()
+  const { grantPermissionToKey, keys, getNewKey, callMethods } = useSetPermissions()
 
   return (
     <Flex
@@ -43,6 +43,13 @@ export const Home = () => {
             }}
           >
             Set permissions
+          </Button>
+          <Button
+            onClick={() => {
+              callMethods()
+            }}
+          >
+            Approve and deposit
           </Button>
         </Card.Body>
       </Card.Root>

@@ -6,7 +6,8 @@ import { type Hex, parseEther } from 'viem'
 import { useAccount, useChainId } from 'wagmi'
 
 const CONTRACT = '0x16b2ea479ad9f1bc07507202c03e735447966585'
-const TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+const TOKEN_ADDRESS = '0xb2F63284AAfAB9f8E422eae4edD5069CcDE435e9'
+
 const SERVER_URL = env.PUBLIC_SERVER_URL
 
 interface Key {
@@ -25,11 +26,12 @@ export const permissions = ({ chainId }: { chainId: number }) => {
 
   return {
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60 * 24 * 30, // 1 month
+    chainId,
     permissions: {
       calls: [
         {
           signature: 'approve(address,uint256)',
-          to: CONTRACT,
+          to: TOKEN_ADDRESS,
         },
         {
           signature: 'transfer(address,uint256)',
@@ -51,10 +53,11 @@ export const useSetPermissions = () => {
   const chainId = useChainId<WagmiPortoConfig>()
   const { address } = useAccount<WagmiPortoConfig>()
   const grantPermissions = Hooks.useGrantPermissions<WagmiPortoConfig>()
-
+  const _permissions = Hooks.usePermissions()
   const [keys, setKeys] = useState<KeyPermission[]>([])
 
-  console.log(keys)
+  console.log({ keys })
+  console.log({ permissions: _permissions.data })
   const getNewKey = useCallback(() => {
     fetch(`${SERVER_URL}/${address}`)
       .then((response) => response.json())
@@ -74,6 +77,18 @@ export const useSetPermissions = () => {
         console.error(error)
       })
   }, [address, chainId])
+
+  const callMethods = useCallback(() => {
+    fetch(`${SERVER_URL}/${address}/transfer`)
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }, [address])
+
   const grantPermissionToKey = useCallback(
     async (key: Key) => {
       const { expiry } = permissions({ chainId })
@@ -82,11 +97,12 @@ export const useSetPermissions = () => {
         key,
         expiry, // permission's expiry, not key expiry
         address,
+        chainId,
         permissions: permissions({ chainId }).permissions,
       })
     },
     [address, chainId, grantPermissions],
   )
 
-  return { grantPermissionToKey, getNewKey, keys }
+  return { grantPermissionToKey, getNewKey, keys, callMethods }
 }
