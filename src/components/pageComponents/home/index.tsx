@@ -1,5 +1,5 @@
 import type { WagmiPortoConfig } from '@/src/lib/wallets/connectkit.config'
-import { Button, Card, Flex, Heading, Span } from '@chakra-ui/react'
+import { Button, Card, Flex, Heading } from '@chakra-ui/react'
 import { useConnect } from 'wagmi'
 import { useSetPermissions } from './useSetPermissions'
 

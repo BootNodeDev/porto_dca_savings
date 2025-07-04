@@ -17,6 +17,7 @@ const zBoolean = z
 export const env = createEnv({
   clientPrefix: 'PUBLIC_',
   client: {
+    PUBLIC_SERVER_URL: z.string().url().optional().default('http://localhost:8787'),
     PUBLIC_ALCHEMY_KEY: z.string().optional(),
     PUBLIC_APP_DESCRIPTION: z.string().min(1).optional(),
     PUBLIC_APP_LOGO: z.string().optional(),

@@ -1,3 +1,4 @@
+import { env } from '@/src/env'
 import type { WagmiPortoConfig } from '@/src/lib/wallets/connectkit.config'
 import { Hooks } from 'porto/wagmi'
 import { useCallback, useState } from 'react'
@@ -6,9 +7,23 @@ import { useAccount, useChainId } from 'wagmi'
 
 const CONTRACT = '0x16b2ea479ad9f1bc07507202c03e735447966585'
 const TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+const SERVER_URL = env.PUBLIC_SERVER_URL
 
-export const permissions = ({ chainId }: { chainId: number }) =>
-  ({
+interface Key {
+  type: 'p256'
+  expiry: number
+  publicKey: Hex
+  role: 'session' | 'admin'
+}
+
+type KeyPermission = {
+  chainId: number
+} & Key
+
+export const permissions = ({ chainId }: { chainId: number }) => {
+  console.log({ chainId })
+
+  return {
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60 * 24 * 30, // 1 month
     permissions: {
       calls: [
@@ -29,18 +44,8 @@ export const permissions = ({ chainId }: { chainId: number }) =>
         },
       ],
     },
-  }) as const
-
-interface Key {
-  type: 'p256'
-  expiry: number
-  publicKey: Hex
-  role: 'session' | 'admin'
+  } as const
 }
-
-type KeyPermission = {
-  chainId: number
-} & Key
 
 export const useSetPermissions = () => {
   const chainId = useChainId<WagmiPortoConfig>()
@@ -51,7 +56,7 @@ export const useSetPermissions = () => {
 
   console.log(keys)
   const getNewKey = useCallback(() => {
-    fetch(`http://localhost:8787/${address}`)
+    fetch(`${SERVER_URL}/${address}`)
       .then((response) => response.json())
       .then((json) => {
         setKeys((keys) => [
