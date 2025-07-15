@@ -4,7 +4,7 @@ import { env } from '@/src/env'
 import { chains, transports } from '@/src/lib/networks.config'
 import type { ButtonProps } from '@chakra-ui/react'
 import { ConnectKitButton, ConnectKitProvider, type Types, getDefaultConfig } from 'connectkit'
-import { porto as portoConnector } from 'porto/wagmi'
+import { Porto } from 'porto'
 import type { FC, ReactNode } from 'react'
 import type { Address } from 'viem'
 import { normalize } from 'viem/ens'
@@ -80,10 +80,11 @@ export const ConnectWalletButton = ({
   )
 }
 
+Porto.create()
 const defaultConfig = {
   chains,
   transports,
-  connectors: [portoConnector()],
+  connectors: [],
 
   // Required API Keys
   walletConnectProjectId: env.PUBLIC_WALLETCONNECT_PROJECT_ID,
@@ -100,7 +101,7 @@ const defaultConfig = {
 const connectkitConfig = getDefaultConfig({
   ...defaultConfig,
   enableFamily: false,
-  multiInjectedProviderDiscovery: false,
+  multiInjectedProviderDiscovery: true,
 })
 
 export const config = createConfig(connectkitConfig)

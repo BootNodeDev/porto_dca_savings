@@ -5,12 +5,14 @@ import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import Sitemap from 'vite-plugin-sitemap'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
   plugins: [
     TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
+    mkcert(),
     react(),
     tsconfigPaths(),
     Sitemap({
