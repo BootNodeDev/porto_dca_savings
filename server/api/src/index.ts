@@ -1,39 +1,39 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { Address, Hex, Json, P256, Signature } from 'ox';
-import { generateRandomPair } from './keys'
+import { logger } from 'hono/logger'
+import { Address as AddressAction, Hex, Json, P256, Signature } from 'ox';
+import { ServerActions, Key } from 'porto/viem';
+import { Address } from 'viem'
+import { generateKey } from './keys'
 import { db } from './db';
-import { porto } from './provider';
-import { Chains } from 'porto';
+import { client } from './provider';
 import { calls } from './contracts/calls';
 
 const app = new Hono()
 
 app.use('*', cors())
+app.use(logger())
 
-app.get('/:address', (c) => {
-  const address = c.req.param('address') as `0x${string}`
+app.get('keys/:address', (c) => {
+  const address = c.req.param('address').toLowerCase() as Address
 
-  if (!address || !Address.validate(address)) {
+  if (!address || !AddressAction.validate(address)) {
     return c.json({ error: 'Invalid address' }, 400)
   }
 
 
-  const keypair = generateRandomPair()
-  db.set(address, keypair)
+  const key = generateKey({ address, type: 'p256', timeFromNow: 60 * 5, role: 'session' })
+  db.set(address.toLowerCase() as Address, key)
 
 
-  // TODO role, expiry, type
-  return c.json({
-    address,
-    publicKey: keypair.publicKey,
-  })
+  const { privateKey, ...keyResponse } = key;
+  return c.json(keyResponse)
 })
 
-app.get('/:address/transfer', async (c) => {
-  const address = c.req.param('address') as `0x${string}`
+app.post(':address/transfer', async (c) => {
+  const address = c.req.param('address').toLowerCase() as Address
 
-  if (!address || !Address.validate(address)) {
+  if (!address || !AddressAction.validate(address)) {
     return c.json({ error: 'Invalid address' }, 400)
   }
 
@@ -41,49 +41,39 @@ app.get('/:address/transfer', async (c) => {
     return c.json({ error: 'Address not found' }, 404)
   }
 
-  const keyPair = db.get(address)!;
+  const key = db.get(address)!;
 
-  const portoInstance = porto(c);
 
-  const { digest, ...request } = await portoInstance.provider.request({
-    method: 'wallet_prepareCalls',
-    params: [
-      {
-        key: {
-          type: 'p256', // TODO save type
-          publicKey: keyPair.publicKey,
-        },
-        from: address,
-        calls,
-        chainId: Hex.fromNumber(Chains.baseSepolia.id), // TODO Change
-      },
-    ],
+  const request = await ServerActions.prepareCalls(client, {
+    account: address,
+    key,
+    calls,
   })
 
-  const signature = Signature.toHex(
-    P256.sign({
-      payload: digest,
-      privateKey: keyPair.privateKey,
-    }),
-  )
+  // const signature = Signature.toHex(
+  //   P256.sign({
+  //     payload: request.digest,
+  //     privateKey: key.privateKey,
+  //   }),
+  // )
 
-  const [sendPreparedCallsResult] = await portoInstance.provider.request({
-    method: 'wallet_sendPreparedCalls',
-    params: [
-      {
-        ...request,
-        signature,
-        key: {
-          type: 'p256',
-          publicKey: keyPair.publicKey,
-        },
-      },
-    ],
-  })
+  // const [sendPreparedCallsResult] = await portoInstance.provider.request({
+  //   method: 'wallet_sendPreparedCalls',
+  //   params: [
+  //     {
+  //       ...request,
+  //       signature,
+  //       key: {
+  //         type: 'p256',
+  //         publicKey: keyPair.publicKey,
+  //       },
+  //     },
+  //   ],
+  // })
 
   return c.json({
     address,
-    id: sendPreparedCallsResult.id,
+    request
   })
 })
 export default app

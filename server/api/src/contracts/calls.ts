@@ -1,7 +1,8 @@
 import { encodeFunctionData, erc20Abi, maxUint256 } from "viem";
 import { dcaReceiverAbi, dcaReceiverAddress } from "./abi";
+import { AbiFunction, type Address, Value } from 'ox'
 
-const tokenAddress = "0xb2F63284AAfAB9f8E422eae4edD5069CcDE435e9";
+export const tokenAddress = "0xb2F63284AAfAB9f8E422eae4edD5069CcDE435e9";
 
 type Call = {
   to: `0x${string}`;
@@ -11,13 +12,13 @@ type Call = {
 // 1. Approve ERC20 to DCA Savings contract
 const approveCall: Call = {
   to: tokenAddress,
-  data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [dcaReceiverAddress, maxUint256] })
+  data: AbiFunction.encodeData(AbiFunction.fromAbi(erc20Abi, 'approve'), [dcaReceiverAddress, Value.fromEther('1')])
 };
 
 // 2. Transfer call to DCA Savings contract
 const transferCall: Call = {
   to: dcaReceiverAddress,
-  data: encodeFunctionData({ abi: dcaReceiverAbi, functionName: 'deposit', args: [tokenAddress, 1n] })
+  data: AbiFunction.encodeData(AbiFunction.fromAbi(dcaReceiverAbi, 'deposit'), [tokenAddress, Value.fromEther('1')])
 };
 
 export const calls = <const>[approveCall, transferCall]

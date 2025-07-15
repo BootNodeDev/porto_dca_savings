@@ -7,6 +7,7 @@ import { useAccount, useChainId } from 'wagmi'
 
 const CONTRACT = '0x16b2ea479ad9f1bc07507202c03e735447966585'
 const TOKEN_ADDRESS = '0xb2F63284AAfAB9f8E422eae4edD5069CcDE435e9'
+const GAS_TOKEN = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2'
 
 const SERVER_URL = env.PUBLIC_SERVER_URL
 
@@ -42,7 +43,7 @@ export const permissions = ({ chainId }: { chainId: number }) => {
         {
           period: 'minute',
           limit: BigInt(parseEther('10')),
-          token: TOKEN_ADDRESS,
+          token: GAS_TOKEN,
         },
       ],
     },
@@ -53,25 +54,22 @@ export const useSetPermissions = () => {
   const chainId = useChainId<WagmiPortoConfig>()
   const { address } = useAccount<WagmiPortoConfig>()
   const grantPermissions = Hooks.useGrantPermissions<WagmiPortoConfig>()
-  const _permissions = Hooks.usePermissions()
-  const [keys, setKeys] = useState<KeyPermission[]>([])
+  const [key, setKey] = useState<KeyPermission | null>(null)
 
-  console.log({ keys })
-  console.log({ permissions: _permissions.data })
   const getNewKey = useCallback(() => {
-    fetch(`${SERVER_URL}/${address}`)
+    fetch(`${SERVER_URL}/keys/${address}`)
       .then((response) => response.json())
       .then((json) => {
-        setKeys((keys) => [
-          ...keys,
-          {
-            chainId,
-            type: 'p256',
-            expiry: Date.now() + 1000 * 60 * 60 * 24 * 30,
-            publicKey: json.publicKey,
-            role: 'session',
-          },
-        ])
+        const newKey: KeyPermission = {
+          chainId,
+          type: 'p256',
+          expiry: json.expiry,
+          publicKey: json.publicKey,
+          role: 'session',
+        }
+
+        console.log({ newKey })
+        setKey(newKey)
       })
       .catch((error) => {
         console.error(error)
@@ -79,7 +77,9 @@ export const useSetPermissions = () => {
   }, [address, chainId])
 
   const callMethods = useCallback(() => {
-    fetch(`${SERVER_URL}/${address}/transfer`)
+    fetch(`${SERVER_URL}/${address}/transfer`, {
+      method: 'POST',
+    })
       .then((response) => response.json())
       .then((json) => {
         console.log(json)
@@ -104,5 +104,5 @@ export const useSetPermissions = () => {
     [address, chainId, grantPermissions],
   )
 
-  return { grantPermissionToKey, getNewKey, keys, callMethods }
+  return { grantPermissionToKey, getNewKey, key, callMethods }
 }

@@ -6,7 +6,7 @@ import { useSetPermissions } from './useSetPermissions'
 export const Home = () => {
   const { connect, connectors } = useConnect<WagmiPortoConfig>()
   console.log({ connect, connectors })
-  const { grantPermissionToKey, keys, getNewKey, callMethods } = useSetPermissions()
+  const { grantPermissionToKey, key, getNewKey, callMethods } = useSetPermissions()
 
   return (
     <Flex
@@ -39,7 +39,11 @@ export const Home = () => {
           </Button>
           <Button
             onClick={() => {
-              grantPermissionToKey(keys[0])
+              if (key) {
+                grantPermissionToKey(key).then(() => {
+                  console.log('Permission granted', key)
+                })
+              }
             }}
           >
             Set permissions

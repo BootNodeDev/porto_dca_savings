@@ -7,8 +7,9 @@
   },
   "dependencies": {
     "hono": "^4.8.3",
-    "porto": "^0.0.41",
-    "viem": "^2.31.6"
+    "ox": "^0.8.4",
+    "porto": "^0.0.52",
+    "viem": "^2.31.7"
   },
   "devDependencies": {
     "wrangler": "^4.4.0"
