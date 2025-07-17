@@ -1,80 +1,58 @@
 import { env } from '@/src/env'
 import type { WagmiPortoConfig } from '@/src/lib/wallets/connectkit.config'
-import { Hooks } from 'porto/wagmi'
+import type { P256Key } from 'porto/viem/Key'
+import { Actions } from 'porto/wagmi'
 import { useCallback, useState } from 'react'
-import { type Hex, parseEther } from 'viem'
-import { useAccount, useChainId } from 'wagmi'
+import { parseEther } from 'viem'
+import { useAccount, useChainId, useConfig } from 'wagmi'
+
+const SERVER_URL = env.PUBLIC_SERVER_URL
+
+type Key = Omit<P256Key, 'privateKey'>
+type Permissions = Key['permissions']
 
 const CONTRACT = '0x16b2ea479ad9f1bc07507202c03e735447966585'
 const TOKEN_ADDRESS = '0xb2F63284AAfAB9f8E422eae4edD5069CcDE435e9'
 const GAS_TOKEN = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2'
 
-const SERVER_URL = env.PUBLIC_SERVER_URL
-
-interface Key {
-  type: 'p256'
-  expiry: number
-  publicKey: Hex
-  role: 'session' | 'admin'
-}
-
-type KeyPermission = {
-  chainId: number
-} & Key
-
-export const permissions = ({ chainId }: { chainId: number }) => {
-  console.log({ chainId })
-
-  return {
-    expiry: Math.floor(Date.now() / 1_000) + 60 * 60 * 24 * 30, // 1 month
-    chainId,
-    permissions: {
-      calls: [
-        {
-          signature: 'approve(address,uint256)',
-          to: TOKEN_ADDRESS,
-        },
-        {
-          signature: 'transfer(address,uint256)',
-          to: CONTRACT,
-        },
-      ],
-      spend: [
-        {
-          period: 'minute',
-          limit: BigInt(parseEther('10')),
-          token: GAS_TOKEN,
-        },
-      ],
+// TODO Receive from server
+export const permissions = {
+  calls: [
+    {
+      signature: 'approve(address,uint256)',
+      to: TOKEN_ADDRESS,
     },
-  } as const
-}
+    {
+      signature: 'transfer(address,uint256)',
+      to: CONTRACT,
+    },
+  ],
+  spend: [
+    {
+      period: 'minute',
+      limit: parseEther('10'),
+      token: GAS_TOKEN,
+    },
+  ],
+} as const satisfies Permissions
 
 export const useSetPermissions = () => {
   const chainId = useChainId<WagmiPortoConfig>()
   const { address } = useAccount<WagmiPortoConfig>()
-  const grantPermissions = Hooks.useGrantPermissions<WagmiPortoConfig>()
-  const [key, setKey] = useState<KeyPermission | null>(null)
+  const config = useConfig<WagmiPortoConfig>()
+  const [key, setKey] = useState<Key | null>(null)
 
   const getNewKey = useCallback(() => {
     fetch(`${SERVER_URL}/keys/${address}`)
       .then((response) => response.json())
-      .then((json) => {
-        const newKey: KeyPermission = {
-          chainId,
-          type: 'p256',
-          expiry: json.expiry,
-          publicKey: json.publicKey,
-          role: 'session',
-        }
-
+      .then((newKey) => {
         console.log({ newKey })
-        setKey(newKey)
+        setKey(newKey as Key)
       })
       .catch((error) => {
         console.error(error)
       })
-  }, [address, chainId])
+  }, [address])
 
   const callMethods = useCallback(() => {
     fetch(`${SERVER_URL}/${address}/transfer`, {
@@ -91,17 +69,19 @@ export const useSetPermissions = () => {
 
   const grantPermissionToKey = useCallback(
     async (key: Key) => {
-      const { expiry } = permissions({ chainId })
-
-      await grantPermissions.mutateAsync({
-        key,
-        expiry, // permission's expiry, not key expiry
+      const permission = await Actions.grantPermissions(config, {
         address,
-        chainId,
-        permissions: permissions({ chainId }).permissions,
+        expiry: key.expiry,
+        key: {
+          publicKey: key.publicKey,
+          type: key.type,
+        },
+        permissions,
       })
+
+      console.log({ permission })
     },
-    [address, chainId, grantPermissions],
+    [address, config],
   )
 
   return { grantPermissionToKey, getNewKey, key, callMethods }

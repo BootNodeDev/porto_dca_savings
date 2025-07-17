@@ -35,7 +35,7 @@
     "connectkit": "^1.9.0",
     "hono": "^4.8.3",
     "next-themes": "^0.4.6",
-    "porto": "^0.0.52",
+    "porto": "^0.0.54",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-error-boundary": "^6.0.0",
