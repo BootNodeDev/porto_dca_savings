@@ -36,7 +36,6 @@ export const permissions = {
 
 export const useSetPermissions = () => {
   const { address } = useAccount<WagmiPortoConfig>()
-  const config = porto.config
   const [key, setKey] = useState<Key | null>(null)
 
   const getNewKey = useCallback(() => {
