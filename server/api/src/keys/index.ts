@@ -1,26 +1,16 @@
-import { P256, PublicKey } from "ox";
-import { Address } from "viem";
-
-const evmTimeNow = () => Math.floor(Date.now() / 1000);
+import { Key } from "porto/viem";
+import { DEFAULT_PERMISSIONS } from "../contracts/permissions";
+import { Permissions } from "porto/viem/Key";
 
 type Role = 'admin' | 'session';
-type Type = 'p256';
 
-const generateRandomPair = () => {
-  const privateKey = P256.randomPrivateKey();
-  const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-    includePrefix: false,
-  });
+const generateKey = ({ expiry, role, permissions = DEFAULT_PERMISSIONS }: { expiry: number, role: Role, permissions?: Permissions }) => {
+  return Key.createP256({
+    expiry,
+    role,
+    permissions
+  })
 
-  return { privateKey, publicKey };
-};
-
-const generateKey = ({ role, timeFromNow, type, address }: { role: Role, timeFromNow: number, type: Type, address: Address }) => {
-  if (type === 'p256') {
-    return { ...generateRandomPair(), expiry: evmTimeNow() + timeFromNow, role, address, type }
-  } else {
-    throw new Error('Unsupported key type');
-  }
 }
 
-export { generateKey, generateRandomPair };
+export { generateKey };

@@ -15,12 +15,15 @@ importers:
         specifier: ^0.8.4
         version: 0.8.4(zod@3.22.3)
       porto:
-        specifier: ^0.0.52
-        version: 0.0.52(@wagmi/core@2.17.3(viem@2.31.7(zod@3.22.3)))(viem@2.31.7(zod@3.22.3))(zod@3.22.3)
+        specifier: ^0.0.54
+        version: 0.0.54(@wagmi/core@2.17.3(viem@2.31.7(zod@3.22.3)))(viem@2.31.7(zod@3.22.3))(zod@3.22.3)
       viem:
         specifier: ^2.31.7
         version: 2.31.7(zod@3.22.3)
     devDependencies:
+      '@types/node':
+        specifier: ^24.0.14
+        version: 24.0.14
       wrangler:
         specifier: ^4.4.0
         version: 4.23.0
@@ -373,6 +376,9 @@ packages:
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
+  '@types/node@24.0.14':
+    resolution: {integrity: sha512-4zXMWD91vBLGRtHK3YbIoFMia+1nqEz72coM42C5ETjnNCa/heoj7NT1G67iAfOqMmcfhuCZ4uNpyz8EjlAejw==}
+
   '@wagmi/core@2.17.3':
     resolution: {integrity: sha512-fgZR9fAiCFtGaosTspkTx5lidccq9Z5xRWOk1HG0VfB6euQGw2//Db7upiP4uQ7DPst2YS9yQN2A1m9+iJLYCw==}
     peerDependencies:
@@ -455,8 +461,8 @@ packages:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
     engines: {node: '>=8'}
 
-  effect@3.16.13:
-    resolution: {integrity: sha512-xJDgOhD7+3qIY1d8PGfkaPZMfmdJuSp2XAQgc9dVF8pSl1FJL6WK4ZUpMh177R+GH8XgPloT8dlZsEYUYDo1Ag==}
+  effect@3.16.16:
+    resolution: {integrity: sha512-q8jsuAJykQJJ9jDkR9VaAR1JeHnEDn49g6+LkveIcfW3nIPUJw6BrC9ZPaVCJWmU23vKoVj9XqJmC/EW8kiI8g==}
 
   esbuild@0.25.4:
     resolution: {integrity: sha512-8pgjLUcUjcgDg+2Q4NYXnPbo/vncAY4UmyaCm0jZevERqCHZIaWwdJHkf8XQtu4AxSKCdvrUbT0XUr1IdZzI8Q==}
@@ -568,8 +574,8 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  porto@0.0.52:
-    resolution: {integrity: sha512-00kR8CDGHZQJ/3bvQZpoWxojU9hCJ7g5lJEBAHRVXyuPISodz2Bmkk7WcAFDp2W3H/qISKvX2H08OJ9GUX/zOg==}
+  porto@0.0.54:
+    resolution: {integrity: sha512-Qghx0r7aPlWz7QmhNQEwjgtBmJKXWzxOdNAPk8J4IE7OjQM7r/FVlxNu/GL+Uw8DB7Ug79Rm32XRg3KQSf/wpQ==}
     hasBin: true
     peerDependencies:
       '@tanstack/react-query': '>=5.59.0'
@@ -626,6 +632,9 @@ packages:
 
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
+
+  undici-types@7.8.0:
+    resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
   undici@5.29.0:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
@@ -949,6 +958,10 @@ snapshots:
 
   '@standard-schema/spec@1.0.0': {}
 
+  '@types/node@24.0.14':
+    dependencies:
+      undici-types: 7.8.0
+
   '@wagmi/core@2.17.3(viem@2.31.7(zod@3.22.3))':
     dependencies:
       eventemitter3: 5.0.1
@@ -1012,7 +1025,7 @@ snapshots:
 
   detect-libc@2.0.4: {}
 
-  effect@3.16.13:
+  effect@3.16.16:
     dependencies:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2
@@ -1148,10 +1161,10 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  porto@0.0.52(@wagmi/core@2.17.3(viem@2.31.7(zod@3.22.3)))(viem@2.31.7(zod@3.22.3))(zod@3.22.3):
+  porto@0.0.54(@wagmi/core@2.17.3(viem@2.31.7(zod@3.22.3)))(viem@2.31.7(zod@3.22.3))(zod@3.22.3):
     dependencies:
       '@wagmi/core': 2.17.3(viem@2.31.7(zod@3.22.3))
-      effect: 3.16.13
+      effect: 3.16.16
       idb-keyval: 6.2.2
       mipd: 0.0.7
       open: 10.2.0
@@ -1215,6 +1228,8 @@ snapshots:
     optional: true
 
   ufo@1.6.1: {}
+
+  undici-types@7.8.0: {}
 
   undici@5.29.0:
     dependencies:

@@ -80,7 +80,7 @@ export const ConnectWalletButton = ({
   )
 }
 
-Porto.create()
+export const porto = Porto.create()
 const defaultConfig = {
   chains,
   transports,

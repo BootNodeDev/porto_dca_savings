@@ -1,15 +1,13 @@
 import { env } from '@/src/env'
-import type { WagmiPortoConfig } from '@/src/lib/wallets/connectkit.config'
+import { type WagmiPortoConfig, porto } from '@/src/lib/wallets/connectkit.config'
 import type { P256Key } from 'porto/viem/Key'
-import { Actions } from 'porto/wagmi'
 import { useCallback, useState } from 'react'
-import { parseEther } from 'viem'
-import { useAccount, useChainId, useConfig } from 'wagmi'
+import { parseEther, toHex } from 'viem'
+import { useAccount } from 'wagmi'
 
 const SERVER_URL = env.PUBLIC_SERVER_URL
 
 type Key = Omit<P256Key, 'privateKey'>
-type Permissions = Key['permissions']
 
 const CONTRACT = '0x16b2ea479ad9f1bc07507202c03e735447966585'
 const TOKEN_ADDRESS = '0xb2F63284AAfAB9f8E422eae4edD5069CcDE435e9'
@@ -29,21 +27,21 @@ export const permissions = {
   ],
   spend: [
     {
-      period: 'minute',
-      limit: parseEther('10'),
+      period: 'month',
+      limit: toHex(parseEther('10')),
       token: GAS_TOKEN,
     },
   ],
-} as const satisfies Permissions
+} as const
 
 export const useSetPermissions = () => {
-  const chainId = useChainId<WagmiPortoConfig>()
   const { address } = useAccount<WagmiPortoConfig>()
-  const config = useConfig<WagmiPortoConfig>()
+  const config = porto.config
   const [key, setKey] = useState<Key | null>(null)
 
   const getNewKey = useCallback(() => {
-    fetch(`${SERVER_URL}/keys/${address}`)
+    const ONE_MONTH = 30 * 24 * 60 * 60
+    fetch(`${SERVER_URL}/keys/${address}?expiry=${Math.floor(Date.now() / 1000 + ONE_MONTH)}`)
       .then((response) => response.json())
       .then((newKey) => {
         console.log({ newKey })
@@ -69,19 +67,42 @@ export const useSetPermissions = () => {
 
   const grantPermissionToKey = useCallback(
     async (key: Key) => {
-      const permission = await Actions.grantPermissions(config, {
-        address,
-        expiry: key.expiry,
-        key: {
-          publicKey: key.publicKey,
-          type: key.type,
-        },
-        permissions,
+      const pre = await porto.provider.request({
+        method: 'wallet_getPermissions',
+        params: [
+          {
+            address,
+          },
+        ],
       })
 
-      console.log({ permission })
+      const permission = await porto.provider.request({
+        method: 'wallet_grantPermissions',
+        params: [
+          {
+            address,
+            expiry: key.expiry,
+            key: {
+              publicKey: key.publicKey,
+              type: key.type,
+            },
+            permissions,
+          },
+        ],
+      })
+
+      const post = await porto.provider.request({
+        method: 'wallet_getPermissions',
+        params: [
+          {
+            address,
+          },
+        ],
+      })
+
+      console.log({ config: porto.config, permission, pre, post })
     },
-    [address, config],
+    [address],
   )
 
   return { grantPermissionToKey, getNewKey, key, callMethods }
